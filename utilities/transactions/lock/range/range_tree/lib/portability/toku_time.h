@@ -101,7 +101,7 @@ int toku_clock_gettime(clockid_t clk_id, struct timespec *ts) __attribute__((__v
 typedef uint64_t tokutime_t;  // Time type used in by tokutek timers.
 
 #if 0
-// The value of tokutime_t is not specified here. 
+// The value of tokutime_t is not specified here.
 // It might be microseconds since 1/1/1970 (if gettimeofday() is
 // used), or clock cycles since boot (if rdtsc is used).  Or something
 // else.
@@ -137,6 +137,10 @@ static inline tokutime_t toku_time_now(void) {
   uint64_t result;
   asm volatile("stckf %0" : "=Q"(result) : : "cc");
   return result;
+#elif (defined(__riscv) && __riscv_xlen == 64)
+  uint64_t cycles;
+  asm volatile("rdcycle %0" : "=r"(cycles));
+  return cycles;
 #else
 #error No timer implementation for this platform
 #endif
