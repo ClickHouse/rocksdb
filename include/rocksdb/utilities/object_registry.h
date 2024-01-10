@@ -10,7 +10,6 @@
 #include <functional>
 #include <memory>
 #include <mutex>
-#include <regex>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -59,11 +58,16 @@ class ObjectLibrary {
   class FactoryEntry : public Entry {
    public:
     FactoryEntry(const std::string& name, FactoryFunc<T> f)
-        : Entry(name), pattern_(std::move(name)), factory_(std::move(f)) {}
+        : Entry(name), /*pattern_(std::move(name)), */factory_(std::move(f)) {}
     ~FactoryEntry() override {}
-    bool matches(const std::string& target) const override {
-      return std::regex_match(target, pattern_);
-    }
+
+    /// No more std::regex, see https://github.com/ClickHouse/llvm-project/pull/38
+    /// - luckily, nobody calls this function. If this is no longer the case, please link rocksdb to RE2 and use re2::FullMatch() instead of
+    ///   regex_match().
+    /// bool matches(const std::string& target) const override {
+    ///   return std::regex_match(target, pattern_);
+    /// }
+
     // Creates a new T object.
     T* NewFactoryObject(const std::string& target, std::unique_ptr<T>* guard,
                         std::string* msg) const {
@@ -71,7 +75,7 @@ class ObjectLibrary {
     }
 
    private:
-    std::regex pattern_;  // The pattern for this entry
+    /// re2::RE2 pattern_;  // The pattern for this entry
     FactoryFunc<T> factory_;
   };  // End class FactoryEntry
  public:
@@ -150,7 +154,7 @@ class ObjectRegistry {
 
   // Creates a new T using the factory function that was registered with a
   // pattern that matches the provided "target" string according to
-  // std::regex_match.
+  // re2::RE2 match.
   //
   // If no registered functions match, returns nullptr. If multiple functions
   // match, the factory function used is unspecified.
