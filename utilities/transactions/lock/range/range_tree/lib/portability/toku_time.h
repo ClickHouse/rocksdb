@@ -141,6 +141,10 @@ static inline tokutime_t toku_time_now(void) {
   uint64_t result;
   asm volatile("stckf %0" : "=Q"(result) : : "cc");
   return result;  
+#elif defined(__loongarch64)
+  uint64_t result;
+  asm volatile ("rdtime.d %0,$r0" : "=r" (result));
+  return result;
 #else
 #error No timer implementation for this platform
 #endif
