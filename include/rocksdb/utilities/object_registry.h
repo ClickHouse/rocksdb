@@ -72,12 +72,15 @@ class ObjectLibrary {
         : Entry(name), factory_(std::move(f)) {
       // FIXME: the API needs to expose this failure mode. For now, bad regexes
       // will match nothing.
-      Regex::Parse(name, &regex_).PermitUncheckedError();
+      /// Regex::Parse(name, &regex_).PermitUncheckedError();
     }
     ~FactoryEntry() override {}
-    bool matches(const std::string& target) const override {
-      return regex_.Matches(target);
-    }
+    /// No more std::regex, see https://github.com/ClickHouse/llvm-project/pull/38
+    /// Luckily, nobody calls this function. If this is no longer the case, please link rocksdb
+    /// to RE2 and use re2::FullMatch() instead of regex_match().
+    /// bool matches(const std::string& target) const override {
+    ///   return regex_.Matches(target);
+    /// }
     // Creates a new T object.
     T* NewFactoryObject(const std::string& target, std::unique_ptr<T>* guard,
                         std::string* msg) const {
@@ -85,7 +88,7 @@ class ObjectLibrary {
     }
 
    private:
-    Regex regex_;  // The pattern for this entry
+    /// Regex regex_;  // The pattern for this entry
     FactoryFunc<T> factory_;
   };  // End class FactoryEntry
  public:

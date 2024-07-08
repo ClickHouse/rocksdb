@@ -12,6 +12,8 @@
 
 #include "rocksdb/status.h"
 
+#if 0 /// ClickHouse-specific patch: disallow std::regexp
+
 namespace ROCKSDB_NAMESPACE {
 
 // A wrapper for parsed regular expressions. The regex syntax and matching is
@@ -44,5 +46,7 @@ class Regex {
   std::shared_ptr<Impl> impl_;  // shared_ptr for simple implementation
 };
 }  // namespace ROCKSDB_NAMESPACE
+
+#endif // 0
 
 #endif  // ROCKSDB_LITE
