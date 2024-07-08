@@ -57,21 +57,21 @@ class ObjectLibrary {
   // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=61582 for example
   //
   // This class is deprecated and will be removed in a future release
-  class RegexEntry : public Entry {
-   public:
-    explicit RegexEntry(const std::string& name) : name_(name) {
-      Regex::Parse(name, &regex_).PermitUncheckedError();
-    }
-
-    bool Matches(const std::string& target) const override {
-      return regex_.Matches(target);
-    }
-    const char* Name() const override { return name_.c_str(); }
-
-   private:
-    std::string name_;
-    Regex regex_;  // The pattern for this entry
-  };
+  /// class RegexEntry : public Entry {
+  ///  public:
+  ///   explicit RegexEntry(const std::string& name) : name_(name) {
+  ///     Regex::Parse(name, &regex_).PermitUncheckedError();
+  ///   }
+  ///
+  ///   bool Matches(const std::string& target) const override {
+  ///     return regex_.Matches(target);
+  ///   }
+  ///   const char* Name() const override { return name_.c_str(); }
+  ///
+  ///  private:
+  ///   std::string name_;
+  ///   Regex regex_;  // The pattern for this entry
+  /// };
 
  public:
   // Class for matching target strings to a pattern.
@@ -248,14 +248,14 @@ class ObjectLibrary {
   //
   // Deprecated. Will be removed in a major release. Code should use AddFactory
   // instead.
-  template <typename T>
-  const FactoryFunc<T>& Register(const std::string& pattern,
-                                 const FactoryFunc<T>& factory) {
-    std::unique_ptr<Entry> entry(
-        new FactoryEntry<T>(new RegexEntry(pattern), factory));
-    AddFactoryEntry(T::Type(), std::move(entry));
-    return factory;
-  }
+  /// template <typename T>
+  /// const FactoryFunc<T>& Register(const std::string& pattern,
+  ///                                const FactoryFunc<T>& factory) {
+  ///   std::unique_ptr<Entry> entry(
+  ///       new FactoryEntry<T>(new RegexEntry(pattern), factory));
+  ///   AddFactoryEntry(T::Type(), std::move(entry));
+  ///   return factory;
+  /// }
 
   // Registers the factory with the library for the name.
   // If name==target, the factory may be used to create a new object.
