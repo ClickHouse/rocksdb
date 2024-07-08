@@ -8,6 +8,8 @@
 
 #include "rocksdb/utilities/regex.h"
 
+#if 0 /// ClickHouse-specific patch: disallow std::regexp
+
 #include <cassert>
 #include <regex>
 
@@ -46,5 +48,7 @@ Status Regex::Parse(const char *pattern, Regex *out) {
 }
 
 }  // namespace ROCKSDB_NAMESPACE
+
+#endif // 0
 
 #endif  // ROCKSDB_LITE
