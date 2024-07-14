@@ -701,6 +701,7 @@ Status BlockBasedTable::Open(
   } else {
     TEST_SYNC_POINT_CALLBACK("BlockBasedTable::Open::SkippedVerifyUniqueId",
                              nullptr);
+#if 0
     if (ioptions.verify_sst_unique_id_in_manifest && ioptions.logger) {
       // A crude but isolated way of reporting unverified files. This should not
       // be an ongoing concern so doesn't deserve a place in Statistics IMHO.
@@ -719,6 +720,7 @@ Status BlockBasedTable::Open(
             "Another ~1000 SST files opened without unique ID to verify");
       }
     }
+#endif
   }
 
   // Set up prefix extracto as needed
