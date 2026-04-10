@@ -5,6 +5,8 @@
 
 #include "util/crc32c_arm64.h"
 
+#include <atomic>
+
 #if defined(HAVE_ARM64_CRC)
 
 #if defined(__linux__)
@@ -49,7 +51,7 @@
   } while (0)
 #endif
 
-extern bool pmull_runtime_flag;
+extern std::atomic<bool> pmull_runtime_flag;
 
 uint32_t crc32c_runtime_check(void) {
 #if defined(ROCKSDB_AUXV_GETAUXVAL_PRESENT) || defined(__FreeBSD__)
@@ -125,7 +127,7 @@ crc32c_arm64(uint32_t crc, unsigned char const *data, size_t len) {
    * Raspberry Pi supports crc32 but doesn't support pmull.
    * Skip Crc32c Parallel computation if no crypto extension available.
    */
-  if (pmull_runtime_flag) {
+  if (pmull_runtime_flag.load(std::memory_order_relaxed)) {
 /* Macro (HAVE_ARM64_CRYPTO) is used for compiling check  */
 #ifdef HAVE_ARM64_CRYPTO
 /* Crc32c Parallel computation
