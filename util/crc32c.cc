@@ -12,6 +12,7 @@
 #include "util/crc32c.h"
 
 #include <array>
+#include <atomic>
 #include <cstdint>
 #include <utility>
 
@@ -53,7 +54,7 @@ ASSERT_FEATURE_COMPAT_HEADER();
 #endif
 
 #if defined(HAVE_ARM64_CRC)
-bool pmull_runtime_flag = false;
+std::atomic<bool> pmull_runtime_flag{false};
 #endif
 
 namespace ROCKSDB_NAMESPACE::crc32c {
@@ -377,7 +378,7 @@ std::string IsFastCrc32Supported() {
   if (crc32c_runtime_check()) {
     has_fast_crc = true;
     arch = "Arm64";
-    pmull_runtime_flag = crc32c_pmull_runtime_check();
+    pmull_runtime_flag.store(crc32c_pmull_runtime_check(), std::memory_order_relaxed);
   } else {
     has_fast_crc = false;
     arch = "Arm64";
@@ -1108,7 +1109,7 @@ static inline Function Choose_Extend() {
   return isAltiVec() ? ExtendPPCImpl : ExtendImpl<DefaultCRC32>;
 #elif defined(HAVE_ARM64_CRC)
   if(crc32c_runtime_check()) {
-    pmull_runtime_flag = crc32c_pmull_runtime_check();
+    pmull_runtime_flag.store(crc32c_pmull_runtime_check(), std::memory_order_relaxed);
     return ExtendARMImpl;
   } else {
     return ExtendImpl<DefaultCRC32>;
