@@ -12,7 +12,9 @@
 #include "port/stack_trace.h"
 #include "rocksdb/convenience.h"
 #include "rocksdb/db.h"
+#include "rocksdb/filter_policy.h"
 #include "rocksdb/sst_file_writer.h"
+#include "table/block_based/block_based_table_factory.h"
 #include "table/sst_file_writer_collectors.h"
 #include "test_util/testharness.h"
 #include "test_util/testutil.h"
@@ -125,6 +127,34 @@ TEST_F(SstFileReaderTest, Uint64Comparator) {
     keys.emplace_back(EncodeAsUint64(i));
   }
   CreateFileAndCheck(keys);
+}
+
+TEST_F(SstFileReaderTest, MayMatchUsesBloomFilter) {
+  BlockBasedTableOptions table_options;
+  table_options.filter_policy.reset(NewBloomFilterPolicy(100, false));
+  options_.table_factory.reset(NewBlockBasedTableFactory(table_options));
+
+  std::vector<std::string> keys;
+  for (uint64_t i = 0; i < kNumKeys; i++) {
+    keys.emplace_back(EncodeAsString(i));
+  }
+  CreateFile(sst_name_, keys);
+
+  SstFileReader reader(options_);
+  ASSERT_OK(reader.Open(sst_name_));
+
+  std::vector<std::string> lookup_storage = {
+      EncodeAsString(0), EncodeAsString(1), "not-present"};
+  std::vector<Slice> lookup_keys;
+  for (const auto& key : lookup_storage) {
+    lookup_keys.emplace_back(key);
+  }
+
+  bool may_match[] = {false, false, false};
+  reader.MayMatch(lookup_keys.data(), lookup_keys.size(), may_match);
+  ASSERT_TRUE(may_match[0]);
+  ASSERT_TRUE(may_match[1]);
+  ASSERT_FALSE(may_match[2]);
 }
 
 TEST_F(SstFileReaderTest, ReadOptionsOutOfScope) {
