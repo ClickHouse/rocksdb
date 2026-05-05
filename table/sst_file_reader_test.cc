@@ -151,7 +151,10 @@ TEST_F(SstFileReaderTest, MayMatchUsesBloomFilter) {
   }
 
   bool may_match[3] = {};
-  reader.MayMatch(lookup_keys.data(), lookup_keys.size(), may_match);
+  ReadOptions read_options;
+  read_options.read_tier = kBlockCacheTier;
+  reader.MayMatch(read_options, lookup_keys.data(), lookup_keys.size(),
+                  may_match);
   ASSERT_TRUE(may_match[0]);
   ASSERT_TRUE(may_match[1]);
   ASSERT_FALSE(may_match[2]);
@@ -209,7 +212,11 @@ TEST_F(SstFileReaderTest, MayMatchReturnsAllTrueWithoutFilter) {
   ASSERT_TRUE(may_match[2]);
 }
 
-TEST_F(SstFileReaderTest, MayMatchZeroKeysDoesNotWriteResults) {
+TEST_F(SstFileReaderTest, MayMatchZeroKeysWithFilterDoesNotWriteResults) {
+  BlockBasedTableOptions table_options;
+  table_options.filter_policy.reset(NewBloomFilterPolicy(100, false));
+  options_.table_factory.reset(NewBlockBasedTableFactory(table_options));
+
   std::vector<std::string> keys;
   for (uint64_t i = 0; i < kNumKeys; i++) {
     keys.emplace_back(EncodeAsString(i));
@@ -219,8 +226,9 @@ TEST_F(SstFileReaderTest, MayMatchZeroKeysDoesNotWriteResults) {
   SstFileReader reader(options_);
   ASSERT_OK(reader.Open(sst_name_));
 
+  Slice dummy;
   bool may_match = false;
-  reader.MayMatch(nullptr, 0, &may_match);
+  reader.MayMatch(&dummy, 0, &may_match);
   ASSERT_FALSE(may_match);
 }
 

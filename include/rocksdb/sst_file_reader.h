@@ -32,6 +32,8 @@ class SstFileReader {
 
   // Bloom-only batch check. For each key, false means the key is definitely
   // absent; true means it may be present or the table cannot answer safely.
+  void MayMatch(const ReadOptions& read_options, const Slice* keys,
+                size_t num_keys, bool* results);
   void MayMatch(const Slice* keys, size_t num_keys, bool* results);
 
   std::shared_ptr<const TableProperties> GetTableProperties() const;
