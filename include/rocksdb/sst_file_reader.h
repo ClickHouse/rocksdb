@@ -30,6 +30,13 @@ class SstFileReader {
   // If "snapshot" is nullptr, the iterator returns only the latest keys.
   Iterator* NewIterator(const ReadOptions& options);
 
+  // Bloom-only batch check. For each key, false means the key is definitely
+  // absent; true means it may be present or the reader cannot answer safely.
+  void MayMatch(const ReadOptions& read_options, const Slice* keys,
+                size_t num_keys, bool* results);
+  // Equivalent to MayMatch(ReadOptions(), keys, num_keys, results).
+  void MayMatch(const Slice* keys, size_t num_keys, bool* results);
+
   std::shared_ptr<const TableProperties> GetTableProperties() const;
 
   // Verifies whether there is corruption in this table.

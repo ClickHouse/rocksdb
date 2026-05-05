@@ -66,6 +66,17 @@ Status SstFileReader::Open(const std::string& file_path) {
   return s;
 }
 
+void SstFileReader::MayMatch(const ReadOptions& read_options, const Slice* keys,
+                             size_t num_keys, bool* results) {
+  auto r = rep_.get();
+  r->table_reader->MayMatch(read_options, keys, num_keys, results);
+}
+
+void SstFileReader::MayMatch(const Slice* keys, size_t num_keys,
+                             bool* results) {
+  MayMatch(ReadOptions(), keys, num_keys, results);
+}
+
 Iterator* SstFileReader::NewIterator(const ReadOptions& roptions) {
   auto r = rep_.get();
   auto sequence = roptions.snapshot != nullptr

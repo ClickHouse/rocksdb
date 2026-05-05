@@ -110,6 +110,16 @@ class TableReader {
                      const SliceTransform* prefix_extractor,
                      bool skip_filters = false) = 0;
 
+  // Bloom-only batch check: for each user key, false means the key is
+  // definitely absent; true means it may be present or the table cannot answer
+  // safely, including filter read errors.
+  // Default: all keys may match (no filter or unsupported table type).
+  virtual void MayMatch(const ReadOptions& /*read_options*/,
+                        const Slice* /*user_keys*/, size_t num_keys,
+                        bool* results) {
+    for (size_t i = 0; i < num_keys; ++i) results[i] = true;
+  }
+
   virtual void MultiGet(const ReadOptions& readOptions,
                         const MultiGetContext::Range* mget_range,
                         const SliceTransform* prefix_extractor,
