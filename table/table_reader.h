@@ -112,7 +112,7 @@ class TableReader {
 
   // Bloom-only batch check: for each user key, false means the key is
   // definitely absent; true means it may be present or the table cannot answer
-  // safely.
+  // safely, including filter read errors.
   // Default: all keys may match (no filter or unsupported table type).
   virtual void MayMatch(const ReadOptions& /*read_options*/,
                         const Slice* /*user_keys*/, size_t num_keys,

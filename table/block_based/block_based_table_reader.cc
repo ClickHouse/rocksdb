@@ -2826,6 +2826,10 @@ void BlockBasedTable::MultiGet(const ReadOptions& read_options,
 void BlockBasedTable::MayMatch(const ReadOptions& read_options,
                                const Slice* user_keys, size_t num_keys,
                                bool* results) {
+  if (num_keys == 0) {
+    return;
+  }
+
   FilterBlockReader* f = rep_->filter.get();
   if (!f || f->IsBlockBased() || !rep_->whole_key_filtering) {
     for (size_t i = 0; i < num_keys; ++i) results[i] = true;
