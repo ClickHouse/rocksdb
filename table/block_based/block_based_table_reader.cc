@@ -2837,10 +2837,10 @@ void BlockBasedTable::MayMatch(const ReadOptions& read_options,
   for (size_t i = 0; i < num_keys; ++i) {
     InternalKey ikey(user_keys[i], kMaxSequenceNumber, kTypeValue);
     Slice internal_key = ikey.Encode();
-    results[i] = f->KeyMayMatch(
-        StripTimestampFromUserKey(user_keys[i], ts_sz),
-        rep_->table_prefix_extractor.get(), kNotValid, no_io,
-        &internal_key, /*get_context=*/nullptr, /*lookup_context=*/nullptr);
+    results[i] = f->KeyMayMatch(StripTimestampFromUserKey(user_keys[i], ts_sz),
+                                rep_->table_prefix_extractor.get(), kNotValid,
+                                no_io, &internal_key, /*get_context=*/nullptr,
+                                /*lookup_context=*/nullptr);
   }
 }
 

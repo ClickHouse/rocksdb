@@ -143,8 +143,8 @@ TEST_F(SstFileReaderTest, MayMatchUsesBloomFilter) {
   SstFileReader reader(options_);
   ASSERT_OK(reader.Open(sst_name_));
 
-  std::vector<std::string> lookup_storage = {
-      EncodeAsString(0), EncodeAsString(1), "not-present"};
+  std::vector<std::string> lookup_storage = {EncodeAsString(0),
+                                             EncodeAsString(1), "not-present"};
   std::vector<Slice> lookup_keys;
   for (const auto& key : lookup_storage) {
     lookup_keys.emplace_back(key);
@@ -171,8 +171,8 @@ TEST_F(SstFileReaderTest, MayMatchReturnsAllTrueForBlockBasedFilter) {
   SstFileReader reader(options_);
   ASSERT_OK(reader.Open(sst_name_));
 
-  std::vector<std::string> lookup_storage = {
-      EncodeAsString(0), EncodeAsString(1), "not-present"};
+  std::vector<std::string> lookup_storage = {EncodeAsString(0),
+                                             EncodeAsString(1), "not-present"};
   std::vector<Slice> lookup_keys;
   for (const auto& key : lookup_storage) {
     lookup_keys.emplace_back(key);
@@ -195,8 +195,8 @@ TEST_F(SstFileReaderTest, MayMatchReturnsAllTrueWithoutFilter) {
   SstFileReader reader(options_);
   ASSERT_OK(reader.Open(sst_name_));
 
-  std::vector<std::string> lookup_storage = {
-      EncodeAsString(0), EncodeAsString(1), "not-present"};
+  std::vector<std::string> lookup_storage = {EncodeAsString(0),
+                                             EncodeAsString(1), "not-present"};
   std::vector<Slice> lookup_keys;
   for (const auto& key : lookup_storage) {
     lookup_keys.emplace_back(key);
