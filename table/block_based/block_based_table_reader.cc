@@ -2826,18 +2826,20 @@ void BlockBasedTable::MultiGet(const ReadOptions& read_options,
 void BlockBasedTable::MayMatch(const ReadOptions& read_options,
                                const Slice* user_keys, size_t num_keys,
                                bool* results) {
-  (void)read_options;
-  for (size_t i = 0; i < num_keys; ++i) results[i] = true;
   FilterBlockReader* f = rep_->filter.get();
-  if (!f || !rep_->whole_key_filtering) return;
+  if (!f || f->IsBlockBased() || !rep_->whole_key_filtering) {
+    for (size_t i = 0; i < num_keys; ++i) results[i] = true;
+    return;
+  }
   const size_t ts_sz =
       rep_->internal_comparator.user_comparator()->timestamp_size();
+  const bool no_io = read_options.read_tier == kBlockCacheTier;
   for (size_t i = 0; i < num_keys; ++i) {
     InternalKey ikey(user_keys[i], kMaxSequenceNumber, kTypeValue);
     Slice internal_key = ikey.Encode();
     results[i] = f->KeyMayMatch(
         StripTimestampFromUserKey(user_keys[i], ts_sz),
-        rep_->table_prefix_extractor.get(), kNotValid, /*no_io=*/false,
+        rep_->table_prefix_extractor.get(), kNotValid, no_io,
         &internal_key, /*get_context=*/nullptr, /*lookup_context=*/nullptr);
   }
 }
