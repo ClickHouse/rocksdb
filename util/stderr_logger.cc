@@ -6,6 +6,8 @@
 
 #include "util/stderr_logger.h"
 
+#include <cstdlib>
+
 #include "port/malloc.h"
 #include "port/sys_time.h"
 
